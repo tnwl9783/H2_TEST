@@ -27,19 +27,25 @@ public class Main {
     public static int queueSize = 1;
 
     public static final Logger logger = LogManager.getLogger(Main.class);
-    public static void main(String[] args) {
+
+
+
+    private static final String index = System.getProperty("user.dir") + "/res/h4/index.html";
+
+    public static void main(String[] args) throws Exception {
+
         boolean DBflag = true;
         DBConfig config = null;
         try {
-            String dbType = "h2"; // Set this dynamically based on your requirements
+            String dbType = "h2";
 
             if(dbType.equalsIgnoreCase("h2") ){
                 config =  new DBConnection();
-                config.createTest("jdbc:h2:tcp://localhost/~/test_h2", "sa", "sa");
+                config.localServerTest("jdbc:h2:tcp://localhost/~/test_h2", "sa", "sa");
             } else{
 
                 config = new DBConnection();
-                config.createTest("jdbc:mariadb://localhost:3306/rusa", "push", "push");
+                config.localServerTest("jdbc:mariadb://localhost:3306/rusa", "push", "push");
             }
 
             if(DBflag){

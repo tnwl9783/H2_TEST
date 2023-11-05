@@ -6,7 +6,6 @@ public interface DBConfig {
     String getUserPw();
 
 
-    void createTest(String url, String user, String password);
-
+    void localServerTest(String url, String user, String password);
 
 }

@@ -7,10 +7,13 @@ public class DBConnection implements DBConfig {
     private String user;
     private String password;
 
-    public void createTest(String url, String user, String password) {
+
+
+    public void localServerTest(String url, String user, String password) {
         this.url = url;
         this.user = user;
         this.password = password;
+
     }
 
     @Override
@@ -27,5 +30,6 @@ public class DBConnection implements DBConfig {
     public String getUserPw() {
         return password;
     }
+
 
 }
