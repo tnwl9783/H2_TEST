@@ -31,14 +31,14 @@ public class NettyCustomHandler extends SimpleChannelInboundHandler<FullHttpRequ
                 System.out.println("\n");
             }
 
-            // Send a response with a success status code
+            // 성공시 status code
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
             System.out.println("Status code: " + response.status().code());
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 
         } catch (JSONException e) {
             e.printStackTrace();
-            // Send a response with an error status code
+            // 실패시 status code
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.INTERNAL_SERVER_ERROR);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
