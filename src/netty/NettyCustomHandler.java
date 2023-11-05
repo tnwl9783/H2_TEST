@@ -28,6 +28,7 @@ public class NettyCustomHandler extends SimpleChannelInboundHandler<FullHttpRequ
                     System.out.println("Key: " + key + ", Value: " + jsonObject.get(key));
                 }
                 count++;
+                System.out.println("\n");
             }
 
             // Send a response with a success status code
