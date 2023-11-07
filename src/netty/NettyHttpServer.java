@@ -7,11 +7,11 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 public class NettyHttpServer {
-    private final String host;
+//    private final String host;
     private final int port;
 
-    public NettyHttpServer(String host, int port) {
-        this.host = host;
+    public NettyHttpServer(int port) {
+//        this.host = host;
         this.port = port;
     }
 
@@ -29,21 +29,11 @@ public class NettyHttpServer {
 
             ch.closeFuture().sync();
 
-
-
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
     }
 
-    public static void main(String[] args) throws Exception {
-        System.out.println("start");
- //       String host = "210.121.194.253";
-        String host = "localhost";
-        int port = 8080; // specify your desired port
-        new NettyHttpServer(host,port).run();
-
-    }
 }
 

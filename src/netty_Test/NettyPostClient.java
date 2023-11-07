@@ -11,6 +11,8 @@ import io.netty.util.CharsetUtil;
 
 import java.net.URI;
 
+
+//별거아님.
 public class NettyPostClient {
     private final String host;
     private final int port;
