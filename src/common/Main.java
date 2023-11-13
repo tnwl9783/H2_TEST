@@ -9,14 +9,10 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class Main {
+
     // 쓰레드 기본 갯수
     public static int corePoolSize = 10;
     // 쓰레트 최대 갯수
@@ -29,41 +25,38 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        System.out.println("start");
+        System.out.println("main netty start");
         int port = 8080;
         new NettyHttpServer(port).run();
     }
 
-    public static void test(JSONObject jsonObject) {
+
+    public static void receiveJSONObject(JSONObject jsonObject) {
 
         DBConfig config = null;
-        System.out.println("start");
 
-        Map<String, Object> map = new HashMap<>();
-        // Iterate through the keys in the JSONObject and put them into the Map
+        ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
         for (String key : jsonObject.keySet()) {
             map.put(key, jsonObject.get(key));
         }
-        // map 출력.
+
+        // map 출력
         System.out.println("Map: " + map);
 
-        System.out.println(map.get("dbFlag").getClass());
-        Boolean dbFlag = (boolean)map.get("dbFlag");
+        Boolean dbFlag = (boolean) map.get("dbFlag");
         String dbType = (String) map.get("dbType");
-        int queryLoop = (int)map.get("queryLoop");
 
-        try{
 
- //           String dbType = "h2";
+        try {
 
             if (dbType.equalsIgnoreCase("h2")) {
                 config = new DBConnection();
-                config.localServerTest("jdbc:h2:tcp://localhost/~/test_h2", "sa", "sa");
-                System.out.println("h2h2h2h2h2h2h2h2h22h2h2h2hh2h2h2h2h2h2h2h2");
+                config.localServerTest("jdbc:h2:tcp://localhost/~/test_h2", "admin", "admin");
+                System.out.println("h2 db");
             } else {
                 config = new DBConnection();
                 config.localServerTest("jdbc:mariadb://localhost:3306/rusa", "push", "push");
-                System.out.println("mariamariamariamariamariamariamariamaria");
+                System.out.println("maria");
             }
 
             if (dbFlag) {
@@ -78,7 +71,7 @@ public class Main {
             ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue);
             System.out.println("threadPoolExecutor " + threadPoolExecutor);
             for (int i = 0; i < maximumPoolSize; i++) {
-                threadPoolExecutor.execute(new MainThread(i));
+                threadPoolExecutor.execute(new MainThread2(i));
             }
 
             threadPoolExecutor.shutdown();
@@ -86,8 +79,10 @@ public class Main {
                 logger.debug("wait End");
             }
             Stat.statRuntime();
-        }catch (Exception e) {
+        } catch (
+                Exception e) {
             logger.error(e.getMessage());
         }
+
     }
 }

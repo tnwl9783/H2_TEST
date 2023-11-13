@@ -14,32 +14,22 @@ public class NettyCustomHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
+        //요청 내용 읽음.
         ByteBuf content = request.content();
         // json to string
         String json = content.toString(io.netty.util.CharsetUtil.UTF_8);
-        System.out.println("handler: " + json.getClass().getSimpleName()); //string
         content.release();
-
- //       System.out.println("Received data: " + json);
-
         try {
             JSONObject jsonObject = new JSONObject(json);
-            System.out.println("jsonObject: " + jsonObject); //JSONObject로 변환.
-            int count = 0;
-            while (count < 2) {
-                for (String key : jsonObject.keySet()) {
-  //                  System.out.println("Key: " + key + ", Value: " + jsonObject.get(key));
-                }
-                count++;
- //               System.out.println("\n");
-            }
-
-            //변수를 클래스로 보내는 방법.
-            Main.test(jsonObject);
 
             // 성공시 status code
             FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1, HttpResponseStatus.OK);
             System.out.println("Status code: " + response.status().code());
+
+
+            //변수를 클래스로 보내는 방법.
+            Main.receiveJSONObject(jsonObject);
+
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
 
         } catch (JSONException e) {
