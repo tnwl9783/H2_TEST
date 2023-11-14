@@ -5,16 +5,19 @@ import db.Single;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MainThread implements Runnable{
     public static final Logger logger = LogManager.getLogger(MainThread.class);
-    private static final ConcurrentHashMap<String, String> database = new ConcurrentHashMap<>();
+    public static String selectSQL = "SELECT dbType FROM json_data WHERE id = ?";
 
-    public static String sql = "SELECT json_value FROM json_data WHERE id = ?";
+
+    public static String insertSQL = "INSERT INTO json_data (dbFlag, dbType) VALUES (?, ?)";
+
 
     public int count = 10000;
 
@@ -23,6 +26,9 @@ public class MainThread implements Runnable{
     public MainThread(int i) {
         name = (name + i);
     }
+
+
+
 
     @Override
     public void run() {
@@ -33,7 +39,7 @@ public class MainThread implements Runnable{
         String user = "admin";
         String password = "admin";
 
-//        String url = "jdbc:mariadb://localhost:3306/rusa";
+//        String url = "jdbc:mariadb://localhost:3306/push";
 //        String user = "push";
 //        String password = "push";
 
@@ -51,7 +57,9 @@ public class MainThread implements Runnable{
                     connection = Pool.getConnection();
                     System.out.println(name + " " + i + " run " + connection.toString());
 
-                    runQuery(ps, connection, i, rs);
+                    runQueryInsert(ps, connection, i, rs);
+
+                    runQuerySelect(ps, connection, i, rs);
 
                     Instant afterTime = Instant.now();
                     long runTime = Duration.between(beforeTime, afterTime).toMillis();
@@ -64,7 +72,9 @@ public class MainThread implements Runnable{
                     Instant beforeTime = Instant.now();
                     connection = Single.getConnection(url, user, password);
                     System.out.println(name + " " + i + " run " + connection.toString());
-                    runQuery(ps, connection, i, rs);
+                    runQueryInsert(ps, connection, i, rs);
+
+                    runQuerySelect(ps, connection, i, rs);
 
                     Instant afterTime = Instant.now();
                     long runTime = Duration.between(beforeTime, afterTime).toMillis();
@@ -82,9 +92,21 @@ public class MainThread implements Runnable{
     }
 
 
-    public static void runQuery(PreparedStatement ps, Connection connection, int i, ResultSet rs) {
+    public static void runQuerySelect(PreparedStatement ps, Connection connection, int i, ResultSet rs) {
         try {
-            ps = connection.prepareStatement(sql);
+            ps = connection.prepareStatement(selectSQL);
+//            ps.setInt('1', i);
+            rs = ps.executeQuery();
+            closeConnection(rs, ps, connection);
+        } catch (Exception e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+
+    public static void runQueryInsert(PreparedStatement ps, Connection connection, int i, ResultSet rs) {
+        try {
+            ps = connection.prepareStatement(insertSQL);
 //            ps.setInt('1', i);
             rs = ps.executeQuery();
             closeConnection(rs, ps, connection);

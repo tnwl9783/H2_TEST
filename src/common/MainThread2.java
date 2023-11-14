@@ -11,19 +11,25 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MainThread2 implements Runnable {
     private static final Logger logger = LogManager.getLogger(MainThread2.class);
 
-    private static final ConcurrentHashMap<String, String> database = new ConcurrentHashMap<>();
-
     private String threadName;
-    private int queryCount = 10000;
+    private int queryCount = 1000;
 
-    public MainThread2(int i) {
+    public static boolean dbFlag;
+
+    public static String dbType;
+
+
+    public MainThread2(int i, boolean dbFlag, String dbType) {
         this.threadName = "MainThread-" + i;
+        this.dbFlag = dbFlag;
+        this.dbType = dbType;
+
     }
+
 
     @Override
     public void run() {
@@ -45,19 +51,40 @@ public class MainThread2 implements Runnable {
             user = "admin";
             password = "admin";
         } else {
-            url = "jdbc:mariadb://localhost:3306/rusa";
+            url = "jdbc:mariadb://localhost:3306/push";
             user = "push";
             password = "push";
         }
+
+//        try {
+//            for (int i = 0; i < queryCount; i++) {
+//                Instant beforeTime = Instant.now();
+//                try (Connection connection = useH2 ? Pool.getConnection() : Single.getConnection(url, user, password)) {
+//                    // Insert
+//                    insertData(dbFlag, dbType);
+//
+//                    // Select
+//                    String selectedValue = selectData(i, dbType);
+//                    logger.info("{} {} run - Selected Value: {}", threadName, i, selectedValue);
+//                }
+//                Instant afterTime = Instant.now();
+//                long runTime = Duration.between(beforeTime, afterTime).toMillis();
+//                Stat.addList(runTime);
+//            }
+//        } catch (Exception e) {
+//            logger.error("Error in thread {}: {}", threadName, e.getMessage());
+//        }
+//    }
+
 
         try {
             for (int i = 0; i < queryCount; i++) {
                 Instant beforeTime = Instant.now();
                 try (Connection connection = useH2 ? Pool.getConnection() : Single.getConnection(url, user, password)) {
-                    // Insert data into the database
+                    // Insert
                     insertData(connection, i, useH2);
 
-                    // Select data from the database
+                    // Select
                     String selectedValue = selectData(connection, i, useH2);
                     logger.info("{} {} run - Selected Value: {}", threadName, i, selectedValue);
                 }
@@ -70,16 +97,22 @@ public class MainThread2 implements Runnable {
         }
     }
 
-    private void insertData(Connection connection, int i, boolean useH2) throws SQLException {
-        // Assuming your table has columns named 'column1', 'column2' etc.
+    private static void insertData(Connection connection, int i, boolean useH2) throws SQLException {
+
         String insertSql = "INSERT INTO json_data (dbFlag, dbType) VALUES (?, ?)";
 
         try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
-            // Assuming your map contains the necessary information for the insert
-            insertStatement.setString(1, database.get("dbFlag")); // Replace "value1" with the actual key in your map
-            insertStatement.setString(2, database.get("dbType")); // Replace "value2" with the actual key in your map
+            // Assuming default values if not present in the database map
+            // 데이터베이스에 아무 값이 없다. 아래는 값을 직접 넣어준 것이고, 값을 어떻게 가져올지 생각할 것.
+//            String dbFlagStringValue = database.getOrDefault("dbFlag", "defaultFlag");
+//            String dbTypeValue = database.getOrDefault("dbType", "defaultType");
+//
+//            // Convert the dbFlag value to boolean
+//            boolean dbFlagValue = Boolean.parseBoolean(dbFlagStringValue);
 
-            // ... repeat for other columns if needed
+
+            insertStatement.setBoolean(1, dbFlag);
+            insertStatement.setString(2, dbType);
 
             // Execute the insert
             insertStatement.executeUpdate();
@@ -87,21 +120,54 @@ public class MainThread2 implements Runnable {
     }
 
     private String selectData(Connection connection, int i, boolean useH2) throws SQLException {
-        // Assuming your table has a column named 'column1' and you want to select it
-        String selectSql = "SELECT json_value FROM json_data WHERE id = ?";
+
+        String selectSql = "SELECT dbType FROM json_data WHERE id = ?";
 
         try (PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
-            // Set the parameter for the select query
+            // 선택 쿼리에 대한 매개변수 설정.
             selectStatement.setInt(1, i);
 
-            // Execute the select
+            // select 실행
             try (ResultSet resultSet = selectStatement.executeQuery()) {
                 // Process the result set if needed
                 if (resultSet.next()) {
-                    return resultSet.getString("json_value");
+                    return resultSet.getString("dbType");
                 }
             }
         }
         return null;
     }
+
+
+//    static void insertData(boolean dbFlag, String dbType) throws SQLException {
+//        try (Connection connection = Pool.getConnection()) {
+//            String insertSql = "INSERT INTO json_data (dbFlag, dbType) VALUES (?, ?)";
+//
+//            try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
+//                insertStatement.setBoolean(1, dbFlag);
+//                insertStatement.setString(2, dbType);
+//
+//                insertStatement.executeUpdate();
+//            }
+//        }
+//    }
+//
+//    private static String selectData(int id, String dbType) throws SQLException {
+//        try (Connection connection = Pool.getConnection()) {
+//            String selectSql = "SELECT dbType FROM json_data WHERE id = ? AND dbType = ?";
+//
+//            try (PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
+//                selectStatement.setInt(1, id);
+//                selectStatement.setString(2, dbType);
+//
+//                try (ResultSet resultSet = selectStatement.executeQuery()) {
+//                    if (resultSet.next()) {
+//                        return resultSet.getString("dbType");
+//                    } else {
+//                        return "Data not found";
+//                    }
+//                }
+//            }
+//        }
+//    }
 }

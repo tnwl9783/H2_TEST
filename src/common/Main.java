@@ -25,11 +25,26 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
 
+//        post("/api/insert", (request, response) -> {
+//            try {
+//                JSONObject json = new JSONObject(request.body());
+//                String dbType = json.getString("dbType");
+//                boolean dbFlag = json.getBoolean("dbFlag");
+//
+//                MainThread2.insertData(dbFlag, dbType);
+//                return "Data inserted successfully";
+//            } catch (Exception e) {
+//                response.status(500); // Internal Server Error
+//                return "Error inserting data: " + e.getMessage();
+//            }
+//        });
+
+
+
         System.out.println("main netty start");
         int port = 8080;
         new NettyHttpServer(port).run();
     }
-
 
     public static void receiveJSONObject(JSONObject jsonObject) {
 
@@ -40,11 +55,9 @@ public class Main {
             map.put(key, jsonObject.get(key));
         }
 
-        // map 출력
-        System.out.println("Map: " + map);
 
-        Boolean dbFlag = (boolean) map.get("dbFlag");
         String dbType = (String) map.get("dbType");
+        Boolean dbFlag = (boolean) map.get("dbFlag");
 
 
         try {
@@ -55,7 +68,7 @@ public class Main {
                 System.out.println("h2 db");
             } else {
                 config = new DBConnection();
-                config.localServerTest("jdbc:mariadb://localhost:3306/rusa", "push", "push");
+                config.localServerTest("jdbc:mariadb://localhost:3306/push", "push", "push");
                 System.out.println("maria");
             }
 
@@ -71,7 +84,9 @@ public class Main {
             ThreadPoolExecutor threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveTime, TimeUnit.SECONDS, workQueue);
             System.out.println("threadPoolExecutor " + threadPoolExecutor);
             for (int i = 0; i < maximumPoolSize; i++) {
-                threadPoolExecutor.execute(new MainThread2(i));
+                threadPoolExecutor.execute(new MainThread2(i, dbFlag, dbType));
+
+
             }
 
             threadPoolExecutor.shutdown();

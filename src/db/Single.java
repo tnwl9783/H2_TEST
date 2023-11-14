@@ -13,7 +13,6 @@ public class Single {
         Connection connection = null;
         try {
 //            Class.forName("org.mariadb.jdbc.Driver");
-//            Class.forName("com.mysql.cj.jdbc.Driver");
             Class.forName("org.h2.Driver");
             connection =  DriverManager.getConnection(url, user, password);
 
