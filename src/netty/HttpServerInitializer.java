@@ -17,4 +17,3 @@ public class HttpServerInitializer extends ChannelInitializer<SocketChannel> {
         p.addLast(new NettyCustomHandler());
     }
 }
-

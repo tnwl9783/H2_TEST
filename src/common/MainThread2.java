@@ -16,6 +16,7 @@ public class MainThread2 implements Runnable {
     private static final Logger logger = LogManager.getLogger(MainThread2.class);
 
     private String threadName;
+
     private int queryCount = 1000;
 
     public static boolean dbFlag;
@@ -29,7 +30,6 @@ public class MainThread2 implements Runnable {
         this.dbType = dbType;
 
     }
-
 
     @Override
     public void run() {
@@ -56,27 +56,7 @@ public class MainThread2 implements Runnable {
             password = "push";
         }
 
-//        try {
-//            for (int i = 0; i < queryCount; i++) {
-//                Instant beforeTime = Instant.now();
-//                try (Connection connection = useH2 ? Pool.getConnection() : Single.getConnection(url, user, password)) {
-//                    // Insert
-//                    insertData(dbFlag, dbType);
-//
-//                    // Select
-//                    String selectedValue = selectData(i, dbType);
-//                    logger.info("{} {} run - Selected Value: {}", threadName, i, selectedValue);
-//                }
-//                Instant afterTime = Instant.now();
-//                long runTime = Duration.between(beforeTime, afterTime).toMillis();
-//                Stat.addList(runTime);
-//            }
-//        } catch (Exception e) {
-//            logger.error("Error in thread {}: {}", threadName, e.getMessage());
-//        }
-//    }
-
-
+// insert
         try {
             for (int i = 0; i < queryCount; i++) {
                 Instant beforeTime = Instant.now();
@@ -102,19 +82,12 @@ public class MainThread2 implements Runnable {
         String insertSql = "INSERT INTO json_data (dbFlag, dbType) VALUES (?, ?)";
 
         try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
-            // Assuming default values if not present in the database map
-            // 데이터베이스에 아무 값이 없다. 아래는 값을 직접 넣어준 것이고, 값을 어떻게 가져올지 생각할 것.
-//            String dbFlagStringValue = database.getOrDefault("dbFlag", "defaultFlag");
-//            String dbTypeValue = database.getOrDefault("dbType", "defaultType");
-//
-//            // Convert the dbFlag value to boolean
-//            boolean dbFlagValue = Boolean.parseBoolean(dbFlagStringValue);
 
 
             insertStatement.setBoolean(1, dbFlag);
             insertStatement.setString(2, dbType);
 
-            // Execute the insert
+            // insert 실행하다.
             insertStatement.executeUpdate();
         }
     }
@@ -138,36 +111,4 @@ public class MainThread2 implements Runnable {
         return null;
     }
 
-
-//    static void insertData(boolean dbFlag, String dbType) throws SQLException {
-//        try (Connection connection = Pool.getConnection()) {
-//            String insertSql = "INSERT INTO json_data (dbFlag, dbType) VALUES (?, ?)";
-//
-//            try (PreparedStatement insertStatement = connection.prepareStatement(insertSql)) {
-//                insertStatement.setBoolean(1, dbFlag);
-//                insertStatement.setString(2, dbType);
-//
-//                insertStatement.executeUpdate();
-//            }
-//        }
-//    }
-//
-//    private static String selectData(int id, String dbType) throws SQLException {
-//        try (Connection connection = Pool.getConnection()) {
-//            String selectSql = "SELECT dbType FROM json_data WHERE id = ? AND dbType = ?";
-//
-//            try (PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
-//                selectStatement.setInt(1, id);
-//                selectStatement.setString(2, dbType);
-//
-//                try (ResultSet resultSet = selectStatement.executeQuery()) {
-//                    if (resultSet.next()) {
-//                        return resultSet.getString("dbType");
-//                    } else {
-//                        return "Data not found";
-//                    }
-//                }
-//            }
-//        }
-//    }
 }
