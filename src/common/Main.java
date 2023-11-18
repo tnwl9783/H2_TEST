@@ -3,11 +3,6 @@ package common;
 import netty.NettyHttpServer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.json.JSONObject;
-
-import java.sql.Connection;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 public class Main {
 
@@ -28,43 +23,6 @@ public class Main {
         new NettyHttpServer(port).run();
     }
 
-    public static void receiveJSONObject(JSONObject jsonObject) {
-
-        ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
-        for (String key : jsonObject.keySet()) {
-            map.put(key, jsonObject.get(key));
-        }
-
-
-        String number = (String) map.get("number");
-        String text = (String) map.get("text");
-
-        String requestType = (String) map.get("requestType");
-
-        try {
-            Connection connection = Query.createConnection();
-
-            if ("insert".equalsIgnoreCase(requestType)) {
-
-                Query.insertData(connection, number, text);
-
-            } else if ("select".equalsIgnoreCase(requestType)) {
-
-                String result = new Query().selectData(connection, number);
-                System.out.println("Selected data: " + result);
-
-            } else {
-                logger.error("Unknown requestType: " + requestType);
-            }
-
-            //종료
-            connection.close();
-        } catch (Exception e) {
-            logger.error("Error during processing", e);
-        }
-    }
-
-}
 
 
 //    public static void receiveJSONObject(JSONObject jsonObject) {
@@ -110,4 +68,5 @@ public class Main {
 //            logger.error(e.getMessage());
 //        }
 //    }
-//}
+}
+
