@@ -35,49 +35,44 @@ public class Main {
             map.put(key, jsonObject.get(key));
         }
 
+
+        String number = (String) map.get("number");
+        String text = (String) map.get("text");
+
         String requestType = (String) map.get("requestType");
 
         try {
             Connection connection = Query.createConnection();
 
             if ("insert".equalsIgnoreCase(requestType)) {
-                processInsertAPI(connection, map);
+
+                Query.insertData(connection, number, text);
+
             } else if ("select".equalsIgnoreCase(requestType)) {
-                processSelectAPI(connection, map);
+
+                String result = new Query().selectData(connection, number);
+                System.out.println("Selected data: " + result);
+
             } else {
                 logger.error("Unknown requestType: " + requestType);
             }
 
-            // Close the connection when done
+            //종료
             connection.close();
         } catch (Exception e) {
             logger.error("Error during processing", e);
         }
     }
 
-    private static void processInsertAPI(Connection connection, ConcurrentMap<String, Object> map) {
-        String number = (String) map.get("number");
-        String text = (String) map.get("text");
-        try {
-            Query.insertData(connection, number, text);
-
-        } catch (Exception e) {
-            logger.error("insert error.", e);
-        }
-    }
-
-    private static void processSelectAPI(Connection connection, ConcurrentMap<String, Object> map) {
-        String number = (String) map.get("number");
-        try {
-            String result = new Query().selectData(connection, number);
-            System.out.println("Selected data: " + result);
-        } catch (Exception e) {
-            logger.error("Error during data selection", e);
-        }
-    }
 }
 
 
+//    public static void receiveJSONObject(JSONObject jsonObject) {
+//
+//        ConcurrentMap<String, Object> map = new ConcurrentHashMap<>();
+//        for (String key : jsonObject.keySet()) {
+//            map.put(key, jsonObject.get(key));
+//        }
 //        DBConfig config = null;
 //        try {
 //            if (dbType.equalsIgnoreCase("h2")) {

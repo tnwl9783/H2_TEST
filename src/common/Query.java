@@ -21,7 +21,7 @@ public class Query {
         }
     }
 
-    public String selectData(Connection connection, String number) throws SQLException {
+    public static String selectData(Connection connection, String number) throws SQLException {
         String selectSql = "SELECT text FROM hello WHERE number = ?";
         try (PreparedStatement selectStatement = connection.prepareStatement(selectSql)) {
             selectStatement.setString(1, number);

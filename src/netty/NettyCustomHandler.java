@@ -21,6 +21,7 @@ public class NettyCustomHandler extends SimpleChannelInboundHandler<FullHttpRequ
         String json = content.toString(io.netty.util.CharsetUtil.UTF_8);
         content.release();
 
+
         try {
             JSONObject jsonObject = new JSONObject(json);
             handleRequest(ctx, requestURI, jsonObject);
